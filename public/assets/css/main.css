@@ -1,0 +1,17 @@
+@import url("reset.css");
+@import url("./../fonts/inconsolata/inconsolata.css");
+@import url("./../fonts/librebarcode128/librebarcode128.css");
+
+:root {
+  --inconsolata: "Inconsolata";
+  --barcode: "Libre Barcode 128";
+  --gray: oklch(16.84% 0 0);
+  --scrollbar-background: oklch(22.64% 0 0);
+  --white-font: oklch(100% 0 0);
+  --horizontal-p: 3rem;
+  --vertical-p: 2rem;
+  font-family: var(--inconsolata);
+}
+.hidden {
+  visibility: collapse !important;
+}
