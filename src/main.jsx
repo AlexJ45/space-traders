@@ -1,19 +1,26 @@
 import * as React from "react";
-import * as ReactDOM from "react-dom/client";
+import { createRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
-import "./../public/assets/css/main.css";
-import Login, { action as loginConnected } from "./routes/login.jsx";
-/* import Passerelle from "./routes/passerelle"; */
+import "/public/assets/css/main.css";
+import Login from "./routes/login.jsx";
+import Passerelle from "./routes/passerelle.jsx";
 import ErrorPage from "./routes/error-page";
-const router = createBrowserRouter([
+
+const routes = [
   {
     path: "/",
     element: <Login />,
     errorElement: <ErrorPage />,
   },
-]);
+  {
+    path: "/passerelle/:symbol",
+    element: <Passerelle />,
+  },
+];
 
-ReactDOM.createRoot(document.getElementById("root")).render(
+const router = createBrowserRouter(routes);
+
+createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <RouterProvider router={router} />
   </React.StrictMode>

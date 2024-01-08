@@ -1,54 +1,61 @@
 import React, { useState } from "react";
-import { Form } from "react-router-dom";
-import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import Cookies from "js-cookie";
 
-export async function action(token) {
-  try {
-    const response = await axios.get(
-      "https://api.spacetraders.io/v2/my/agent",
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-    console.log("API Response:", response.data);
-    return response.data;
-  } catch (error) {
-    console.error("Error making API request:", error);
-    throw error;
-  }
-}
-
-export default function Login() {
+const Login = () => {
   const [token, setToken] = useState("");
-  const handleLogin = async (e) => {
-    e.preventDefault();
+  const navigate = useNavigate();
+
+  const handleTokenInput = (event) => {
+    setToken(event.target.value);
+  };
+
+  const handleLogin = async () => {
     try {
-      await action(token);
+      const playerSymbol = await authenticateUserAndGetSymbol(token);
+      if (playerSymbol) {
+        Cookies.set("authToken", token, { expires: 7 });
+        navigate(`/passerelle/${playerSymbol}`);
+      } else {
+        console.error("Player symbol is undefined");
+      }
     } catch (error) {
-      console.error("Login failed:", error);
+      console.error("Authentication error:", error);
     }
   };
 
-  const handleTokenChange = (e) => {
-    setToken(e.target.value);
+  const authenticateUserAndGetSymbol = async (inputToken) => {
+    try {
+      const response = await fetch("https://api.spacetraders.io/v2/my/agent", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${inputToken}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Authentication failed: ${response.statusText}`);
+      }
+
+      const responseData = await response.json();
+      return responseData.data.symbol;
+    } catch (error) {
+      console.error("Error during authentication:", error);
+      throw new Error("Authentication failed");
+    }
   };
 
   return (
     <div>
-      <h1>/connect</h1>
-      <div>
-        <Form onSubmit={handleLogin}>
-          <input
-            type="text"
-            placeholder="Token"
-            value={token}
-            onChange={handleTokenChange}
-          />
-          <button type="submit">Connexion</button>
-        </Form>
-      </div>
+      <h1>Login Page</h1>
+      <label>
+        Token:
+        <input type="text" value={token} onChange={handleTokenInput} />
+      </label>
+      <button onClick={handleLogin}>Login</button>
     </div>
   );
-}
+};
+
+export default Login;
