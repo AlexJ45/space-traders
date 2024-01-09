@@ -5,6 +5,7 @@ import "/public/assets/css/main.css";
 import Login from "./routes/login.jsx";
 import Passerelle from "./routes/passerelle.jsx";
 import ErrorPage from "./routes/error-page";
+import Dashboard from "./routes/dashboard.jsx";
 
 const routes = [
   {
@@ -14,7 +15,12 @@ const routes = [
   },
   {
     path: "/passerelle/:symbol",
-    element: <Passerelle />,
+    element: (
+      <Passerelle>
+        {" "}
+        <Dashboard />
+      </Passerelle>
+    ),
   },
 ];
 

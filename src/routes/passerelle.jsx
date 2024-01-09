@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import Cookies from "js-cookie"; 
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
+import Cookies from 'js-cookie';
 
-const Passerelle = () => {
+const Passerelle = ({ children }) => {
   const { symbol } = useParams();
   const [agentData, setAgentData] = useState(null);
 
@@ -10,18 +10,15 @@ const Passerelle = () => {
     const fetchAgentData = async () => {
       try {
         const authToken = Cookies.get("authToken");
-        const response = await fetch(
-          "https://api.spacetraders.io/v2/my/agent",
-          {
-            headers: {
-              Authorization: `Bearer ${authToken}`,
-            },
+        const response = await fetch('https://api.spacetraders.io/v2/my/agent', {
+          headers: {
+            'Authorization': `Bearer ${authToken}`
           }
-        );
+        });
         const data = await response.json();
         setAgentData(data.data);
       } catch (error) {
-        console.error("Error fetching agent data:", error);
+        console.error('Error fetching agent data:', error);
       }
     };
 
@@ -40,6 +37,8 @@ const Passerelle = () => {
           <p>Credits: {agentData.credits}</p>
           <p>Starting Faction: {agentData.startingFaction}</p>
           <p>Ship Count: {agentData.shipCount}</p>
+          
+          {children}
         </div>
       ) : (
         <p>Loading...</p>
