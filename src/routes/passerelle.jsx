@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import Cookies from 'js-cookie';
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
+import Cookies from "js-cookie";
 
 const Passerelle = ({ children }) => {
   const { symbol } = useParams();
@@ -10,15 +10,18 @@ const Passerelle = ({ children }) => {
     const fetchAgentData = async () => {
       try {
         const authToken = Cookies.get("authToken");
-        const response = await fetch('https://api.spacetraders.io/v2/my/agent', {
-          headers: {
-            'Authorization': `Bearer ${authToken}`
+        const response = await fetch(
+          "https://api.spacetraders.io/v2/my/agent",
+          {
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+            },
           }
-        });
+        );
         const data = await response.json();
         setAgentData(data.data);
       } catch (error) {
-        console.error('Error fetching agent data:', error);
+        console.error("Error fetching agent data:", error);
       }
     };
 
@@ -26,23 +29,25 @@ const Passerelle = ({ children }) => {
   }, []);
 
   return (
-    <div>
-      <h1>Passerelle Page</h1>
+    <div className="passerelle">
       {agentData ? (
-        <div>
-          <p>Welcome! Your symbol: {symbol}</p>
-          <p>Account ID: {agentData.accountId}</p>
-          <p>Symbol: {agentData.symbol}</p>
-          <p>Headquarters: {agentData.headquarters}</p>
-          <p>Credits: {agentData.credits}</p>
-          <p>Starting Faction: {agentData.startingFaction}</p>
-          <p>Ship Count: {agentData.shipCount}</p>
-          
-          {children}
+        <div className="menu">
+          <div className="profile">
+            <h1>{symbol}</h1>
+
+            <span>ID: {agentData.accountId}</span>
+            <span>Headquarters: {agentData.headquarters}</span>
+
+            <span>{agentData.credits} credits</span>
+            <span>Ships : {agentData.shipCount}</span>
+          </div>
         </div>
       ) : (
-        <p>Loading...</p>
+        <div className="menu">
+          <span>Loading...</span>
+        </div>
       )}
+      <div className="passerelle__content">{children}</div>
     </div>
   );
 };
