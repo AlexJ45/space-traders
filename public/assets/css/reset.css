@@ -125,3 +125,9 @@ textarea {
   height: fit-content;
   overflow: hidden;
 }
+button {
+  background: none;
+  border: none;
+  height: fit-content;
+  width: fit-content;
+}

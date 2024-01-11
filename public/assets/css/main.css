@@ -1,19 +1,31 @@
 @import url("reset.css");
-@import url("./../fonts/inconsolata/inconsolata.css");
-@import url("./../fonts/librebarcode128/librebarcode128.css");
+@import url("./../fonts/piecesofeight/piecesofeight.css");
 
 :root {
-  --inconsolata: "Inconsolata";
-  --barcode: "Libre Barcode 128";
+  --piecesofeight: "Pieces of Eight";
+
   --gray: oklch(16.84% 0 0);
   --scrollbar-background: oklch(22.64% 0 0);
   --white-font: oklch(100% 0 0);
   --horizontal-p: 3rem;
   --vertical-p: 2rem;
-  font-family: var(--inconsolata);
+  font-family: var(--piecesofeight);
 }
+
 .hidden {
   visibility: collapse !important;
+}
+.button {
+  background-color: #3498db;
+  color: #ecf0f1;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  font-size: 16px;
+}
+
+.button:hover {
+  background-color: #2980b9;
 }
 
 .passerelle {
@@ -21,7 +33,6 @@
   width: 100%;
   height: 100vh;
   overflow: hidden;
-  color:;
 }
 
 .menu {

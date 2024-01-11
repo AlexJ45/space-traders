@@ -1,14 +1,24 @@
 .map-info {
   position: absolute;
+  z-index: 1;
+  top: 1rem;
+  left: 1rem;
 }
 
 .recenter {
   position: absolute;
-  bottom: 5px;
-  right: 5px;
+  bottom: 1rem;
+  right: 1rem;
   z-index: 1;
 }
-
+.recenter__icon {
+  height: 4rem;
+  color: goldenrod;
+  width: 4rem;
+}
+.recenter:hover .recenter__icon {
+  color: rgb(241, 174, 5);
+}
 .map {
   height: 100%;
   width: 100%;
