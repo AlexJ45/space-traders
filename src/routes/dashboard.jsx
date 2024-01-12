@@ -41,27 +41,15 @@ const Dashboard = () => {
         const headquarters = agentData.data.headquarters;
         setStartingWaypoint(headquarters);
 
-        const storedSystemDetails = localStorage.getItem("SystemDetails");
-        if (!storedSystemDetails && startingWaypoint) {
-          const [sector, system] = startingWaypoint.split("-");
-          const systemUrl = `https://api.spacetraders.io/v2/systems/${sector}-${system}`;
-          const systemResponse = await fetch(systemUrl, {
-            headers: { Authorization: `Bearer ${authToken}` },
-          });
-          const systemData = await systemResponse.json();
-          console.log(systemData);
-          localStorage.setItem(
-            "SystemDetails",
-            JSON.stringify(systemData.data)
-          );
-          setSystemDetails(systemData.data);
-        }
-        const handleResize = () => {
-          setCanvasSize({
-            width: canvasRef.current.offsetWidth,
-            height: canvasSize.height,
-          });
-        };
+        const [sector, system] = headquarters.split("-");
+        const systemUrl = `https://api.spacetraders.io/v2/systems/${sector}-${system}`;
+        const systemResponse = await fetch(systemUrl, {
+          headers: { Authorization: `Bearer ${authToken}` },
+        });
+        const systemData = await systemResponse.json();
+        console.log(systemData);
+        localStorage.setItem("SystemDetails", JSON.stringify(systemData.data));
+        setSystemDetails(systemData.data);
 
         const shipsResponse = await fetch(
           "https://api.spacetraders.io/v2/my/ships/",
@@ -88,6 +76,12 @@ const Dashboard = () => {
         };
         centerCanvas();
 
+        const handleResize = () => {
+          setCanvasSize({
+            width: canvasRef.current.offsetWidth,
+            height: canvasRef.current.offsetHeight,
+          });
+        };
         window.addEventListener("resize", handleResize);
 
         return () => {
@@ -101,13 +95,6 @@ const Dashboard = () => {
     fetchData();
   }, []);
 
-  useEffect(() => {
-    if (systemDetails && canvasRef.current) {
-      const waypointsToDraw = filterWaypoints(systemDetails.waypoints);
-      const ctx = canvasRef.current.getContext("2d");
-      drawWaypoints(ctx, waypointsToDraw);
-    }
-  }, [systemDetails, canvasSize, canvasPosition, canvasScale, clickedWaypoint]);
   useEffect(() => {
     const handleMouseLeave = () => {
       setIsDragging(false);
@@ -137,6 +124,13 @@ const Dashboard = () => {
       fetchOrbitalsData();
     }
   }, [waypointDetails]);
+  useEffect(() => {
+    if (systemDetails && canvasRef.current) {
+      const waypointsToDraw = filterWaypoints(systemDetails.waypoints);
+      const ctx = canvasRef.current.getContext("2d");
+      drawWaypoints(ctx, waypointsToDraw);
+    }
+  }, [systemDetails, canvasSize, canvasPosition, canvasScale, clickedWaypoint]);
   const filterWaypoints = (waypoints) => {
     return waypoints.filter((waypoint) => !waypoint.orbits);
   };
