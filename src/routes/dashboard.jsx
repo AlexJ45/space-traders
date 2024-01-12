@@ -25,86 +25,80 @@ const Dashboard = () => {
   const [orbitalsDetails, setOrbitalsDetails] = useState(null);
 
   useEffect(() => {
-    const authToken = Cookies.get("authToken");
-    const storedSystemDetails = localStorage.getItem("SystemDetails");
+    const fetchData = async () => {
+      try {
+        const authToken = Cookies.get("authToken");
 
-    fetch("https://api.spacetraders.io/v2/my/agent", {
-      headers: {
-        Authorization: `Bearer ${authToken}`,
-      },
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        const headquarters = data.data["headquarters"];
+        const agentResponse = await fetch(
+          "https://api.spacetraders.io/v2/my/agent",
+          {
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+            },
+          }
+        );
+        const agentData = await agentResponse.json();
+        const headquarters = agentData.data.headquarters;
         setStartingWaypoint(headquarters);
-      })
-      .catch((error) => console.error("Error fetching agent details:", error));
 
-    if (storedSystemDetails) {
-      setSystemDetails(JSON.parse(storedSystemDetails));
-    } else {
-      if (startingWaypoint) {
-        const [sector, system] = startingWaypoint.split("-");
-        const systemUrl = `https://api.spacetraders.io/v2/systems/${sector}-${system}`;
-
-        fetch(systemUrl, {
-          headers: { Authorization: `Bearer ${authToken}` },
-        })
-          .then((response) => response.json())
-          .then((systemData) => {
-            console.log(systemData);
-            localStorage.setItem("SystemDetails", JSON.stringify(systemData));
-            setSystemDetails(systemData);
-          })
-          .catch((error) =>
-            console.error("Error fetching system details:", error)
+        const storedSystemDetails = localStorage.getItem("SystemDetails");
+        if (!storedSystemDetails && startingWaypoint) {
+          const [sector, system] = startingWaypoint.split("-");
+          const systemUrl = `https://api.spacetraders.io/v2/systems/${sector}-${system}`;
+          const systemResponse = await fetch(systemUrl, {
+            headers: { Authorization: `Bearer ${authToken}` },
+          });
+          const systemData = await systemResponse.json();
+          console.log(systemData);
+          localStorage.setItem(
+            "SystemDetails",
+            JSON.stringify(systemData.data)
           );
-      }
-    }
+          setSystemDetails(systemData.data);
+        }
+        const handleResize = () => {
+          setCanvasSize({
+            width: canvasRef.current.offsetWidth,
+            height: canvasSize.height,
+          });
+        };
 
-    fetch("https://api.spacetraders.io/v2/my/ships/", {
-      headers: {
-        Authorization: `Bearer ${authToken}`,
-      },
-      timeout: 1000,
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        const ships = data.data;
+        const shipsResponse = await fetch(
+          "https://api.spacetraders.io/v2/my/ships/",
+          {
+            headers: {
+              Authorization: `Bearer ${authToken}`,
+            },
+            timeout: 1000,
+          }
+        );
+        const shipsData = await shipsResponse.json();
+        const ships = shipsData.data;
         setShip(ships);
-      })
-      .catch((error) => console.error("Error fetching agent details:", error));
 
-    const centerCanvas = () => {
-      setCanvasPosition({
-        x: canvasSize.width / 2,
-        y: canvasSize.height / 2,
-      });
+        setCanvasSize({
+          width: canvasRef.current.offsetWidth,
+          height: canvasRef.current.offsetHeight,
+        });
+        const centerCanvas = () => {
+          setCanvasPosition({
+            x: canvasSize.width / 2,
+            y: canvasSize.height / 2,
+          });
+        };
+        centerCanvas();
+
+        window.addEventListener("resize", handleResize);
+
+        return () => {
+          window.removeEventListener("resize", handleResize);
+        };
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
     };
-    setCanvasSize({
-      width: canvasRef.current.offsetWidth,
-      height: canvasRef.current.offsetHeight,
-    });
 
-    const handleResize = () => {
-      setCanvasSize({
-        width: canvasRef.current.offsetWidth,
-        height: canvasSize.height,
-      });
-    };
-
-    centerCanvas();
-    setCanvasPosition({
-      x: 0,
-      y: 0,
-    });
-    handleResize();
-
-    window.addEventListener("resize", handleResize);
-
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
+    fetchData();
   }, []);
 
   useEffect(() => {
@@ -160,7 +154,7 @@ const Dashboard = () => {
     ctx.lineTo(canvasSize.width, canvasSize.height / 2);
     ctx.moveTo(canvasSize.width / 2, 0);
     ctx.lineTo(canvasSize.width / 2, canvasSize.height);
-    ctx.strokeStyle = "#5d350a";
+    ctx.strokeStyle = "rgba(218, 165, 32, 0.50)";
     ctx.stroke();
 
     const systemX = canvasSize.width / 2 - canvasPosition.x * canvasScale;
@@ -170,7 +164,8 @@ const Dashboard = () => {
     ctx.lineTo(systemX, canvasSize.height);
     ctx.moveTo(0, systemY);
     ctx.lineTo(canvasSize.width, systemY);
-    ctx.strokeStyle = "rgba(218, 165, 32, 0.50)";
+    ctx.strokeStyle = "#5d350a";
+
     ctx.stroke();
 
     waypoints.forEach((waypoint) => {
@@ -191,7 +186,6 @@ const Dashboard = () => {
       });
     });
   };
-
   const getWaypointColor = (type) => {
     switch (type) {
       case "PLANET":
@@ -308,11 +302,7 @@ const Dashboard = () => {
         .then((response) => response.json())
         .then((details) => {
           setWaypointDetails(details.data);
-
-          const shipsAtClickedWaypoint = ship.filter(
-            (ship) => ship.nav.waypointSymbol === waypoint.symbol
-          );
-          setShipsAtWaypoint(shipsAtClickedWaypoint);
+          handleShipWaypoint(details.data);
         })
         .catch((error) =>
           console.error("Error fetching waypoint details:", error)
@@ -370,53 +360,105 @@ const Dashboard = () => {
 
     setCanvasScale(clampedScale);
   };
+  const handleShipWaypoint = (waypoint) => {
+    const shipsAtClickedWaypoint = ship.filter(
+      (ship) => ship.nav.waypointSymbol === waypoint.symbol
+    );
+    console.log(shipsAtClickedWaypoint);
+    setShipsAtWaypoint(shipsAtClickedWaypoint);
+  };
 
   return (
     <>
       {startingWaypoint && systemDetails && (
-        <div className="map-info">
-          {clickedWaypoint == null ? (
-            <>
-              <h3>{systemDetails.symbol}</h3>
-              <p>Type: {systemDetails.type}</p>
-              <p>
-                Coordinates: {systemDetails.x}, {systemDetails.y}
-              </p>
-            </>
-          ) : (
-            <>
-              {clickedWaypoint && (
-                <>
+        <div className=" map-info">
+          <div className="tabs">
+            <div className="tab">
+              <input
+                type="radio"
+                name="tab-menu"
+                id="tab-1"
+                defaultChecked={!clickedWaypoint}
+                className="tab-switch"
+              />
+              <label htmlFor="tab-1" className="tab-label">
+                {systemDetails.symbol}
+              </label>
+              <div className="tab-content">
+                <h3>{systemDetails.symbol}</h3>
+                <p>Type: {systemDetails.type}</p>
+                <p>
+                  Coordinates: {systemDetails.x}, {systemDetails.y}
+                </p>
+              </div>
+            </div>
+            {clickedWaypoint && (
+              <div className="tab">
+                <input
+                  type="radio"
+                  name="tab-menu"
+                  id="tab-2"
+                  defaultChecked={clickedWaypoint != null}
+                  className="tab-switch"
+                  onClick={() => handleShipWaypoint(clickedWaypoint)}
+                />
+                <label htmlFor="tab-2" className="tab-label">
+                  {clickedWaypoint.symbol}
+                </label>
+                <div className="tab-content">
                   <p>{clickedWaypoint.symbol}</p>
                   <p>Type: {clickedWaypoint.type}</p>
                   <p>
                     Coordinates: {clickedWaypoint.x}, {clickedWaypoint.y}
                   </p>
-                </>
-              )}
-              {orbitalsDetails && orbitalsDetails.length > 0 && (
-                <div className="orbitals-information">
-                  <ul>
-                    {orbitalsDetails.map((orbital) => (
-                      <li key={orbital.symbol}>
-                        <p>{orbital.symbol}</p>
-                        <p>{orbital.type}</p>
-                      </li>
-                    ))}
-                  </ul>
+                  {ship && shipsAtWaypoint.length > 0 && (
+                    <div className="ships-at-waypoint">
+                      <ul>
+                        {shipsAtWaypoint.map((ship) => (
+                          <li key={ship.symbol}>{ship.symbol}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                 </div>
-              )}
-              {ship && shipsAtWaypoint.length > 0 && (
-                <div className="ships-at-waypoint">
-                  <ul>
-                    {shipsAtWaypoint.map((ship) => (
-                      <li key={ship.symbol}>{ship.symbol}</li>
-                    ))}
-                  </ul>
+              </div>
+            )}
+            {clickedWaypoint &&
+              orbitalsDetails &&
+              orbitalsDetails.map((orbital, index) => (
+                <div className="tab" key={`tab-${index + 3}`}>
+                  <input
+                    type="radio"
+                    name="tab-menu"
+                    id={`tab-${index + 3}`}
+                    className="tab-switch"
+                    onClick={() => handleShipWaypoint(orbital)}
+                  />
+                  <label htmlFor={`tab-${index + 3}`} className="tab-label">
+                    {orbital.symbol}
+                  </label>
+                  <div className="tab-content">
+                    <div className="orbitals-information">
+                      <ul>
+                        <li key={orbital.symbol}>
+                          <p>{orbital.symbol}</p>
+                          <p>{orbital.type}</p>
+                        </li>
+                      </ul>
+                      {ship && shipsAtWaypoint.length > 0 && (
+                        <div className="ships-at-waypoint">
+                          <ul>
+                            {shipsAtWaypoint.map((ship) => (
+                              <li key={ship.symbol}>{ship.symbol}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              )}
-            </>
-          )}
+              ))}
+          </div>
         </div>
       )}
       <button className="recenter" onClick={handleMoveToOrigin}>
