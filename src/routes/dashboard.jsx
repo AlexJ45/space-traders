@@ -23,6 +23,7 @@ const Dashboard = () => {
   const [ship, setShip] = useState(null);
   const [shipsAtWaypoint, setShipsAtWaypoint] = useState([]);
   const [orbitalsDetails, setOrbitalsDetails] = useState(null);
+  const [hoveredWaypoint, setHoveredWaypoint] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -47,7 +48,7 @@ const Dashboard = () => {
           headers: { Authorization: `Bearer ${authToken}` },
         });
         const systemData = await systemResponse.json();
-        console.log(systemData);
+
         localStorage.setItem("SystemDetails", JSON.stringify(systemData.data));
         setSystemDetails(systemData.data);
 
@@ -68,13 +69,13 @@ const Dashboard = () => {
           width: canvasRef.current.offsetWidth,
           height: canvasRef.current.offsetHeight,
         });
-        const centerCanvas = () => {
-          setCanvasPosition({
-            x: canvasSize.width / 2,
-            y: canvasSize.height / 2,
-          });
-        };
-        centerCanvas();
+
+        // Calculate the initial position and scale to center the map at 0.0
+        const initialPosition = { x: 0, y: 0 };
+        const initialScale = 1;
+
+        setCanvasPosition(initialPosition);
+        setCanvasScale(initialScale);
 
         const handleResize = () => {
           setCanvasSize({
@@ -82,6 +83,7 @@ const Dashboard = () => {
             height: canvasRef.current.offsetHeight,
           });
         };
+
         window.addEventListener("resize", handleResize);
 
         return () => {
@@ -110,6 +112,7 @@ const Dashboard = () => {
       }
     };
   }, []);
+
   useEffect(() => {
     if (waypointDetails && waypointDetails.orbitals) {
       const fetchOrbitalsData = async () => {
@@ -124,6 +127,7 @@ const Dashboard = () => {
       fetchOrbitalsData();
     }
   }, [waypointDetails]);
+
   useEffect(() => {
     if (systemDetails && canvasRef.current) {
       const waypointsToDraw = filterWaypoints(systemDetails.waypoints);
@@ -131,15 +135,53 @@ const Dashboard = () => {
       drawWaypoints(ctx, waypointsToDraw);
     }
   }, [systemDetails, canvasSize, canvasPosition, canvasScale, clickedWaypoint]);
+
   const filterWaypoints = (waypoints) => {
     return waypoints.filter((waypoint) => !waypoint.orbits);
+  };
+
+  const imageSources = {
+    PLANET: "/assets/medias/icons/island.svg",
+    GAS_GIANT: "/assets/medias/icons/storm.svg",
+    FUEL_STATION: "/assets/medias/icons/tavern.svg",
+    GRAVITY_WELL: "/assets/medias/icons/typhoon.svg",
+    DEBRIS_FIELD: "/assets/medias/icons/shipwreck.svg",
+    ARTIFICIAL_GRAVITY_WELL: "/assets/medias/icons/typhoon.svg",
+    JUMP_GATE: "/assets/medias/icons/portal.svg",
+    DEFAULT: "/assets/medias/icons/default.svg",
+  };
+
+  const preloadImages = () => {
+    const images = {};
+    Object.keys(imageSources).forEach((key) => {
+      const img = new Image();
+      img.src = imageSources[key];
+      images[key] = img;
+    });
+    return images;
+  };
+
+  const images = preloadImages();
+
+  const drawCustomWaypoint = (ctx, adjustedX, adjustedY, type) => {
+    const img = images[type] || images.DEFAULT;
+    ctx.drawImage(
+      img,
+      adjustedX - 15 * canvasScale,
+      adjustedY - 15 * canvasScale,
+      30 * canvasScale,
+      30 * canvasScale
+    );
+
+    ctx.fillStyle = getWaypointColor(type);
+    ctx.fill();
   };
   const drawWaypoints = (ctx, waypoints) => {
     ctx.canvas.waypoints = [];
     ctx.fillStyle = "#f9ffb5";
     ctx.fillRect(0, 0, canvasSize.width, canvasSize.height);
 
-    if (!waypoints || !waypoints || waypoints.length === 0) {
+    if (!waypoints || waypoints.length === 0) {
       return;
     }
 
@@ -159,7 +201,6 @@ const Dashboard = () => {
     ctx.moveTo(0, systemY);
     ctx.lineTo(canvasSize.width, systemY);
     ctx.strokeStyle = "#5d350a";
-
     ctx.stroke();
 
     waypoints.forEach((waypoint) => {
@@ -169,10 +210,7 @@ const Dashboard = () => {
         canvasSize.height / 2 + (waypoint.y - canvasPosition.y) * canvasScale;
 
       ctx.beginPath();
-      ctx.arc(adjustedX, adjustedY, 5 * canvasScale, 0, 2 * Math.PI);
-      ctx.fillStyle = getWaypointColor(waypoint.type);
-      ctx.fill();
-
+      drawCustomWaypoint(ctx, adjustedX, adjustedY, waypoint.type);
       ctx.canvas.waypoints.push({
         x: adjustedX,
         y: adjustedY,
@@ -180,6 +218,7 @@ const Dashboard = () => {
       });
     });
   };
+
   const getWaypointColor = (type) => {
     switch (type) {
       case "PLANET":
@@ -234,7 +273,6 @@ const Dashboard = () => {
     } else {
       const clickX = e.nativeEvent.offsetX - canvasSize.width / 2;
       const clickY = e.nativeEvent.offsetY - canvasSize.height / 2;
-
       const clickedWaypoint = findClickedWaypoint(clickX, clickY);
       if (clickedWaypoint) {
         fetchWaypointDetails(clickedWaypoint.waypointData);
@@ -266,6 +304,7 @@ const Dashboard = () => {
       });
     }
   };
+
   const findClickedWaypoint = (clickX, clickY) => {
     for (const waypoint of canvasRef.current.waypoints) {
       const distance = Math.sqrt(
@@ -354,14 +393,14 @@ const Dashboard = () => {
 
     setCanvasScale(clampedScale);
   };
+
   const handleShipWaypoint = (waypoint) => {
     const shipsAtClickedWaypoint = ship.filter(
       (ship) => ship.nav.waypointSymbol === waypoint.symbol
     );
-    console.log(shipsAtClickedWaypoint);
+
     setShipsAtWaypoint(shipsAtClickedWaypoint);
   };
-
   return (
     <>
       {startingWaypoint && systemDetails && (
