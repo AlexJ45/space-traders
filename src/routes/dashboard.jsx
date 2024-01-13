@@ -204,8 +204,8 @@ const Dashboard = () => {
 
     for (let j = 0; j < 26; j++) {
       const systemY =
-        (j - 13) * (canvasSize.height / 26) * canvasScale * gridScaleFactor +
-        canvasSize.height / 2 -
+        (j - 13) * (canvasSize.width / 26) * canvasScale * gridScaleFactor +
+        canvasSize.width / 2 -
         canvasPosition.y * canvasScale;
 
       ctx.beginPath();
