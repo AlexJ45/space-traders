@@ -1,5 +1,9 @@
 # Dashboard Space Filibuster
 
+## Lien vers le Site en Ligne :
+
+[Space Filibuster Dashboard](https://sea-filibuster.netlify.app/)
+
 ## Vue d'ensemble du Projet :
 
 Ce tableau de bord est une application permettant aux utilisateurs d'explorer un système spatial fictif. Les fonctionnalités comprennent l'affichage du système et de ses waypoints, l'accès aux détails des waypoints, l'affichage des vaisseaux sur les waypoints, l'affichage des orbitaux des waypoints, la connexion, le zoom et le déplacement sur la carte (le déplacement n'est pas encore complet), et le recentrage de la carte avec la boussole.
@@ -23,9 +27,5 @@ Ce tableau de bord est une application permettant aux utilisateurs d'explorer un
 7. **Recentrage de la Carte avec la Boussole :** Recentrez la carte sur le point d'origine avec une animation de boussole.
 
 8. **Navigation des vaisseau :** Non terminée.
-
-## Lien vers le Site en Ligne :
-
-[Space Filibuster Dashboard](https://sea-filibuster.netlify.app/)
 
 ---
