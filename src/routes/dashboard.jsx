@@ -187,24 +187,33 @@ const Dashboard = () => {
       return;
     }
 
-    ctx.beginPath();
-    ctx.moveTo(0, canvasSize.height / 2);
-    ctx.lineTo(canvasSize.width, canvasSize.height / 2);
-    ctx.moveTo(canvasSize.width / 2, 0);
-    ctx.lineTo(canvasSize.width / 2, canvasSize.height);
-    ctx.strokeStyle = "rgba(218, 165, 32, 0.50)";
-    ctx.stroke();
+    const gridScaleFactor = 3;
 
-    const systemX = canvasSize.width / 2 - canvasPosition.x * canvasScale;
-    const systemY = canvasSize.height / 2 - canvasPosition.y * canvasScale;
-    ctx.beginPath();
-    ctx.moveTo(systemX, 0);
-    ctx.lineTo(systemX, canvasSize.height);
-    ctx.moveTo(0, systemY);
-    ctx.lineTo(canvasSize.width, systemY);
-    ctx.strokeStyle = "#5d350a";
-    ctx.stroke();
+    for (let i = 0; i < 26; i++) {
+      const systemX =
+        (i - 13) * (canvasSize.width / 26) * canvasScale * gridScaleFactor +
+        canvasSize.width / 2 -
+        canvasPosition.x * canvasScale;
 
+      ctx.beginPath();
+      ctx.moveTo(systemX, 0);
+      ctx.lineTo(systemX, canvasSize.height);
+      ctx.strokeStyle = "rgba(218, 165, 32, 0.50)";
+      ctx.stroke();
+    }
+
+    for (let j = 0; j < 26; j++) {
+      const systemY =
+        (j - 13) * (canvasSize.height / 26) * canvasScale * gridScaleFactor +
+        canvasSize.height / 2 -
+        canvasPosition.y * canvasScale;
+
+      ctx.beginPath();
+      ctx.moveTo(0, systemY);
+      ctx.lineTo(canvasSize.width, systemY);
+      ctx.strokeStyle = "rgba(218, 165, 32, 0.50)";
+      ctx.stroke();
+    }
     waypoints.forEach((waypoint) => {
       const adjustedX =
         canvasSize.width / 2 + (waypoint.x - canvasPosition.x) * canvasScale;
@@ -657,18 +666,22 @@ const Dashboard = () => {
                             />
                           </svg>
                           {ship.symbol}
-                          {selectedShip === ship.symbol &&
-                            accessibleWaypoints.map((waypoint) => (
-                              <div key={waypoint.symbol}>
-                                <p>{waypoint.symbol}</p>
-                                <p>Type: {waypoint.type}</p>
-                                <button
-                                  onClick={() => handleLaunchShip(waypoint)}
-                                >
-                                  Launch Ship here
-                                </button>
-                              </div>
-                            ))}
+                          {selectedShip == ship.symbol &&
+                            accessibleWaypoints && (
+                              <>
+                                {accessibleWaypoints.map((waypoint) => (
+                                  <div key={waypoint.symbol}>
+                                    <p>{waypoint.symbol}</p>
+                                    <p>Type: {waypoint.type}</p>
+                                    <button
+                                      onClick={() => handleLaunchShip(waypoint)}
+                                    >
+                                      Launch Ship here
+                                    </button>
+                                  </div>
+                                ))}
+                              </>
+                            )}
                         </li>
                       ))}
                     </ul>
@@ -789,18 +802,26 @@ const Dashboard = () => {
                                 />
                               </svg>
                               {ship.symbol}
-                              {selectedShip === ship.symbol &&
-                                accessibleWaypoints.map((waypoint) => (
-                                  <div key={waypoint.symbol}>
-                                    <p>{waypoint.symbol}</p>
-                                    <p>Type: {waypoint.type}</p>
-                                    <button
-                                      onClick={() => handleLaunchShip(waypoint)}
-                                    >
-                                      Launch Ship here
-                                    </button>
-                                  </div>
-                                ))}
+                              {selectedShip == ship.symbol &&
+                                accessibleWaypoints && (
+                                  <>
+                                    {accessibleWaypoints.map((waypoint) => (
+                                      <div
+                                        key={waypoint.symbol}
+                                        className="waypoint-item"
+                                      >
+                                        <p>Symbol: {waypoint.symbol}</p>
+                                        <button
+                                          onClick={() =>
+                                            handleLaunchShip(waypoint)
+                                          }
+                                        >
+                                          Launch Ship here
+                                        </button>
+                                      </div>
+                                    ))}
+                                  </>
+                                )}
                             </li>
                           ))}
                         </ul>

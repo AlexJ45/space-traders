@@ -150,7 +150,8 @@ const Login = () => {
 
   return (
     <div className="login">
-      <div id="switch" className="switch">
+      <h1>The Seas Filibusters !</h1>
+      {/* <div id="switch" className="switch">
         <div
           className={`switch-choix ${
             !isRegisterView ? "switch-actif" : ""
@@ -167,7 +168,7 @@ const Login = () => {
         >
           Register
         </div>
-      </div>
+      </div> */}
 
       {isRegisterView ? (
         <form className="register-form">
@@ -185,10 +186,11 @@ const Login = () => {
         </form>
       ) : (
         <form className="login-form">
-          <label>
-            Token:
+          <div className="login-input">
+            {" "}
+            <label>Token:</label>
             <input type="text" value={token} onChange={handleTokenInput} />
-          </label>
+          </div>
 
           <button className="button" onClick={handleLogin}>
             Login

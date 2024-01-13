@@ -30,7 +30,7 @@
 
 .tabs {
   position: relative;
-  background: #1abc9c;
+  background: goldenrod;
   height: 100%;
 }
 
@@ -58,8 +58,8 @@
   line-height: 2.75em;
   height: 3em;
   padding: 0 1.618em;
-  background: #1abc9c;
-  border-right: 0.125rem solid #16a085;
+  background: goldenrod;
+
   color: #fff;
   cursor: pointer;
   top: 0;

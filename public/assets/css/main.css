@@ -7,19 +7,26 @@
   --alegreya: "Alegreya";
   --alegreyasc: "Alegreya SC";
   --gray: oklch(16.84% 0 0);
-  --scrollbar-background: oklch(22.64% 0 0);
   --white-font: oklch(100% 0 0);
   --horizontal-p: 3rem;
   --vertical-p: 2rem;
   font-family: var(--alegreya);
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--piecesofeight);
 }
 
 .hidden {
   visibility: collapse !important;
 }
 .button {
-  background-color: #3498db;
-  color: #ecf0f1;
+  background-color: rgb(241, 174, 5);
+  color: white;
   border: none;
   cursor: pointer;
   padding: 8px;
@@ -27,7 +34,7 @@
 }
 
 .button:hover {
-  background-color: #2980b9;
+  background-color: goldenrod;
 }
 
 .passerelle {

@@ -52,6 +52,7 @@ const Passerelle = ({ children }) => {
 
   const handleLogout = () => {
     Cookies.remove("authToken");
+    localStorage.removeItem("SystemDetails");
     navigate("/");
   };
 
