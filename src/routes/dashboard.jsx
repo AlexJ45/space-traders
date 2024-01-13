@@ -446,7 +446,7 @@ const Dashboard = () => {
   };
 
   const handleCanvasWheel = (e) => {
-    const zoomSpeed = 0.1;
+    const zoomSpeed = 0.5;
     const newScale =
       e.deltaY > 0 ? canvasScale - zoomSpeed : canvasScale + zoomSpeed;
 
